@@ -27,8 +27,26 @@ export function ChatbotUI() {
   const recognitionRef = React.useRef<any>(null);
   const { toast } = useToast();
 
+  // 👇 Voiceflow Webchat Script Injection
   React.useEffect(() => {
-    // Check for SpeechRecognition API
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://cdn.voiceflow.com/widget-next/bundle.mjs';
+    script.onload = function () {
+      // @ts-ignore
+      window.voiceflow.chat.load({
+        verify: { projectID: '68651ed5b6d64a988f504e01' },
+        url: 'https://general-runtime.voiceflow.com',
+        versionID: 'production',
+        voice: {
+          url: 'https://runtime-api.voiceflow.com'
+        }
+      });
+    };
+    document.body.appendChild(script);
+  }, []);
+
+  React.useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
       recognitionRef.current = new SpeechRecognition();
@@ -53,9 +71,9 @@ export function ChatbotUI() {
       recognition.onerror = (event: any) => {
         console.error('Speech recognition error', event.error);
         toast({
-            title: 'Voice Error',
-            description: `Could not recognize voice: ${event.error}`,
-            variant: 'destructive'
+          title: 'Voice Error',
+          description: `Could not recognize voice: ${event.error}`,
+          variant: 'destructive'
         });
         setIsListening(false);
       };
@@ -70,18 +88,17 @@ export function ChatbotUI() {
         recognitionRef.current.start();
       }
     } else {
-        toast({
-            title: 'Unsupported Browser',
-            description: 'Your browser does not support voice recognition.',
-            variant: 'destructive'
-        });
+      toast({
+        title: 'Unsupported Browser',
+        description: 'Your browser does not support voice recognition.',
+        variant: 'destructive'
+      });
     }
   };
 
-
   React.useEffect(() => {
     if (scrollAreaRef.current) {
-        scrollAreaRef.current.scrollTo(0, scrollAreaRef.current.scrollHeight);
+      scrollAreaRef.current.scrollTo(0, scrollAreaRef.current.scrollHeight);
     }
   }, [messages]);
 
@@ -113,7 +130,7 @@ export function ChatbotUI() {
         description: response.error || 'Could not get a response from the assistant.',
         variant: 'destructive',
       });
-      setMessages((prev) => prev.slice(0, -1)); // Remove user message on failure
+      setMessages((prev) => prev.slice(0, -1));
     }
     setIsLoading(false);
   };
@@ -146,14 +163,14 @@ export function ChatbotUI() {
               </div>
             ))}
             {isLoading && (
-               <div className="flex items-end gap-2 justify-start">
-                  <Avatar className="h-8 w-8">
-                     <AvatarFallback><Sparkles className="h-4 w-4" /></AvatarFallback>
-                  </Avatar>
-                  <div className="bg-muted rounded-lg px-4 py-2 flex items-center">
-                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                  </div>
+              <div className="flex items-end gap-2 justify-start">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback><Sparkles className="h-4 w-4" /></AvatarFallback>
+                </Avatar>
+                <div className="bg-muted rounded-lg px-4 py-2 flex items-center">
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 </div>
+              </div>
             )}
           </div>
         </ScrollArea>
