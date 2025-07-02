@@ -3,9 +3,9 @@
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Send, Sparkles, Loader2, Mic } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getChatbotReply } from '@/lib/actions';
@@ -27,7 +27,7 @@ export function ChatbotUI() {
   const recognitionRef = React.useRef<any>(null);
   const { toast } = useToast();
 
-  // 👇 Voiceflow Webchat Script Injection
+  // 👇 Voiceflow Webchat Script Injection (left-positioned)
   React.useEffect(() => {
     const script = document.createElement('script');
     script.type = 'text/javascript';
@@ -42,6 +42,17 @@ export function ChatbotUI() {
           url: 'https://runtime-api.voiceflow.com'
         }
       });
+
+      // Move widget to left after it loads
+      setTimeout(() => {
+        const widget = document.querySelector('vf-chat');
+        if (widget) {
+          widget.setAttribute(
+            'style',
+            'left: 20px; right: auto; bottom: 20px; position: fixed; z-index: 9999;'
+          );
+        }
+      }, 1500);
     };
     document.body.appendChild(script);
   }, []);
